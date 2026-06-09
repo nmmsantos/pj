@@ -177,23 +177,19 @@ int main( int argc, char ** argv ){
     
     // if any non-sigchld signals are pending, handle them
     // 
-    if( !g_mainIsDone ){
-      if( g_received.sigHup  || g_received.sigInt  || g_received.sigQuit
-          ||
-          g_received.sigTerm || g_received.sigUsr1 || g_received.sigUsr2
-      ){
-        if( g_options.killOnSignal ){
-          goto handle_kill_and_reap_children ;
-        } else {
-          // !killOnSignal, merely pass through signals instead
-          if( g_received.sigHup  ){ g_received.sigHup  = 0 ; pass_on_signal( g_mainChildPid, SIGHUP  ); }
-          if( g_received.sigInt  ){ g_received.sigInt  = 0 ; pass_on_signal( g_mainChildPid, SIGINT  ); }
-          if( g_received.sigQuit ){ g_received.sigQuit = 0 ; pass_on_signal( g_mainChildPid, SIGQUIT ); }
-          if( g_received.sigTerm ){ g_received.sigTerm = 0 ; pass_on_signal( g_mainChildPid, SIGTERM ); }
-          if( g_received.sigUsr1 ){ g_received.sigUsr1 = 0 ; pass_on_signal( g_mainChildPid, SIGUSR1 ); }
-          if( g_received.sigUsr2 ){ g_received.sigUsr2 = 0 ; pass_on_signal( g_mainChildPid, SIGUSR2 ); }
-        }
+    if( g_received.sigHup  || g_received.sigInt  || g_received.sigQuit
+        ||
+        g_received.sigTerm || g_received.sigUsr1 || g_received.sigUsr2
+    ){
+      if( g_options.killOnSignal ){
+        goto handle_kill_and_reap_children ;
       }
+      if( g_received.sigHup  ){ g_received.sigHup  = 0 ; if( !g_mainIsDone ) pass_on_signal( g_mainChildPid, SIGHUP  ); }
+      if( g_received.sigInt  ){ g_received.sigInt  = 0 ; if( !g_mainIsDone ) pass_on_signal( g_mainChildPid, SIGINT  ); }
+      if( g_received.sigQuit ){ g_received.sigQuit = 0 ; if( !g_mainIsDone ) pass_on_signal( g_mainChildPid, SIGQUIT ); }
+      if( g_received.sigTerm ){ g_received.sigTerm = 0 ; if( !g_mainIsDone ) pass_on_signal( g_mainChildPid, SIGTERM ); }
+      if( g_received.sigUsr1 ){ g_received.sigUsr1 = 0 ; if( !g_mainIsDone ) pass_on_signal( g_mainChildPid, SIGUSR1 ); }
+      if( g_received.sigUsr2 ){ g_received.sigUsr2 = 0 ; if( !g_mainIsDone ) pass_on_signal( g_mainChildPid, SIGUSR2 ); }
     }
     
     // if any sigchld signals are pending, wait on children until none remain
